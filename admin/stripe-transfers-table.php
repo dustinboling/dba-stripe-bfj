@@ -23,7 +23,7 @@ class Transfers_Table extends WP_List_Table {
 	function column_default( $item, $column_name ) {
 	    switch( $column_name ) {
 		    case 'date':
-		    	return date("n/j/Y", $item->date); 
+		    	return '<a href="'.get_admin_url().'admin.php?page=dba_stripe_transfer_detail&transfer_id='.$item->id.'" title="Show Details">'.date("n/j/Y", $item->date).'</a>';
 		    case 'amount':
 		    	setlocale(LC_MONETARY, 'en_US');
 		    	return money_format( '%(#5n', ( $item->summary->charge_gross / 100 ) );
@@ -44,7 +44,18 @@ class Transfers_Table extends WP_List_Table {
 		$hidden = array();
 		$sortable = array();
 		$this->_column_headers = array($columns, $hidden, $sortable);
-		$this->items = get_transfers();
+		
+		$per_page = 10;
+		$current_page = $this->get_pagenum();
+		$total_items = get_transfer_count();
+		$data = get_transfers_by_page( $current_page, $per_page );
+	 
+		// Set pagination data for the page
+		$this->set_pagination_args( 
+			array( 'total_items' => $total_items, 'per_page' => $per_page ) );
+		
+		$this->items = $data;
+				
 	}
 	
 

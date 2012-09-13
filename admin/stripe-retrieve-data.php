@@ -24,8 +24,10 @@ function get_customers(){
 	$raw_customers = $data->data;
 	
 	$customers = null;
-	foreach( $raw_customers as $raw_cust ) {
-		$customers[] = new Customer( $raw_cust );
+	if( count( $raw_customers ) > 0 ){
+		foreach( $raw_customers as $raw_cust ) {
+			$customers[] = new Customer( $raw_cust );
+		}
 	}
 	
 	return $customers;
@@ -60,15 +62,83 @@ function get_all_customers( $chunk_size = 100 ){
 	return $customers;
 } 
 
+function get_customers_by_page( $page, $chunk_size = 100 ){
+	$cust_data = Stripe_Customer::all( 
+		array( 'count' => $chunk_size, 'offset' => ( ( $page - 1) * $chunk_size ) ) );
+	$raw_customers = $cust_data->data;
+	
+	$customers = null;
+	if( count( $raw_customers ) > 0 ){
+		foreach( $raw_customers as $raw_cust ) {
+			$customers[] = new Customer( $raw_cust );
+		}
+	}
+	return $customers;
+}
+
+function get_customer_count(){
+	$cust_data = Stripe_Customer::all( array( 'count' => 1 ) );
+	return $cust_data->count;
+}
+
+/* Returns up to 100 of the most recent transfers */
 function get_transfers() {
 	$transfers = Stripe_Transfer::all( array( 'count' => 100 ) );
 
 	return $transfers->data;
 }
 
+function get_all_transfers( $chunk_size = 100 ){
+	
+	// Initially set count_offset to 0 because there may be no need to 
+	// do any further iterations (less than 100 transers are in the
+	// system.
+	$count_offset = 0;
+	
+	$transfers = null;
+	$current_chunk = null;
+	do{
+		$current_chunk = Stripe_Transfer::all(
+			array( 'count' => $chunk_size, 'offset' => $count_offset ) );
+		
+	
+		if( count( $current_chunk->data ) > 0 ){
+			foreach( $current_chunk->data as $trfr ){
+				$transfers[] = $trfr;
+			}
+		}
+	
+		if( count( $transfers ) < $current_chunk->count ){
+			$count_offset = $count_offset + $chunk_size;
+		}
+	
+	}while( count( $transfers ) < $current_chunk->count );
+	
+	return $transfers;
+} 
+
+function get_transfers_by_page( $page, $chunk_size = 100 ){
+	$trfr_data = Stripe_Transfer::all( 
+		array( 'count' => $chunk_size, 'offset' => ( ( $page - 1) * $chunk_size ) ) );
+		$raw_transfers = $trfr_data->data;
+	
+	$transfers = null;
+	if( count( $raw_transfers ) > 0 ){
+		foreach( $raw_transfers as $raw_trfr ) {
+			$transfers[] = $raw_trfr;
+		}
+	}
+	return $transfers;
+}
+
 function get_transfer ( $transfer_id ) {
 	$transfer = Stripe_Transfer::retrieve( $transfer_id );
-	return $transfer;
+	return $transfer->data;
+}
+
+function get_transfer_count(){
+	$trfr_data = Stripe_Transfer::all( array( 'count' => 1 ) );
+	return $trfr_data->count;
 }
 
 function get_transactions_by_transfer( $transfer_id ){
