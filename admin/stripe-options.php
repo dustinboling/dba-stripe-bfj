@@ -29,7 +29,32 @@ function add_defaults_fn() {
     update_option('plugin_options', $arr);
 }
 
-if ( !function_exists( 'dba_stripe_add_options' ) ) {
+if( ! function_exists( 'dba_stripe_options_init' ) ) {
+	function dba_stripe_options_init(){
+		 
+		 register_setting( 'api_key_settings_group', 'api_key_settings' );
+		 add_settings_section( 'api_key_section', 'API Key Settings', 'api_key_section_callback', 'api_key_settings_page' );
+		 add_settings_field( 'plugin_text', 'Enter a name', 'field_callback', 'api_key_settings_page', 'api_key_section' );
+	}
+}
+
+if( ! function_exists( 'api_key_section_callback' ) ) {
+	function api_key_section_callback(){
+		?>
+		
+		
+		<?php
+	}
+}
+
+if( ! function_exists( 'field_callback' ) ) {
+	function field_callback(){
+		$options = get_option( 'api_key_settings' );
+		echo "<input id='plugin_text' name='api_key_settings[plugin_text]' type='text' value='{$options['plugin_text']}' />";
+	}
+}
+
+if ( ! function_exists( 'dba_stripe_add_options' ) ) {
 	function dba_stripe_add_options() {
 	
 		// Add Top-Level Menu to WordPress
@@ -57,6 +82,15 @@ if ( !function_exists( 'dba_stripe_add_options' ) ) {
 			'administrator',
 			'dba_stripe_transfer_detail',
 			'dba_stripe_show_transfer_detail'
+		);
+		
+		add_submenu_page(
+			'dba_stripe_menu',
+			'Settings',
+			'Settings',
+			'administrator',
+			'dba_stripe_settings',
+			'dba_stripe_show_settings'
 		);
 
 	}

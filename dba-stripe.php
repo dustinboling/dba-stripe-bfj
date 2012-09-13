@@ -52,7 +52,8 @@ add_filter('query_vars', 'add_parameter_transfer_id' );
 
 // Actions (Overview)
 // ----------------------------------------------------------------------------------------------------------
-add_action('admin_menu', 'dba_stripe_add_options');
+add_action( 'admin_menu', 'dba_stripe_add_options' );
+add_action( 'admin_init', 'dba_stripe_options_init' );
 
 //add_action('wp_print_styles', 'load_dba_stripe_css');
 //add_action('wp_print_scripts', 'load_dba_stripe_js');

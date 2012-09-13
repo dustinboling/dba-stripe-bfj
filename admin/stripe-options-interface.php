@@ -63,3 +63,23 @@ if( ! function_exists( 'dba_stripe_show_transfer_detail' ) ) {
 		echo '</div>';		
 	}
 }
+
+if( ! function_exists( 'dba_stripe_show_settings' ) ) {
+	function dba_stripe_show_settings(){
+		?>
+			<div class='wrap'>
+				<div id="icon-tools" class="icon32"></div>
+				<h2>DBA Commerce Settings</h2>
+				<form method='post' action='options.php'>
+					<?php
+						settings_fields( 'api_key_settings_group' );
+						do_settings_sections( 'api_key_settings_page' );
+					?>
+					<p class='submit'>
+						<input name='submit' type='submit' class='button-primary' value='<?php _e( "Save Changes" ) ?>' />
+					</p>
+				</form>	
+			</div>
+		<?
+	}
+}
