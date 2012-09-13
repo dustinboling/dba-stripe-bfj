@@ -4,10 +4,23 @@ require_once( 'business_objects/customer.php' );
 require_once( 'business_objects/charge.php' );
 require_once( 'business_objects/basic_charge.php' );
 require_once( 'business_objects/event.php' );
-Stripe::setApiKey("tqGmZrDeX4JmYmJbjnmKipyQe7z96IRV");
 
+/* 
+Get the API Key from the settings in the DB. The type of key (whether live or test)
+is dependent upon the setting in the options page. 
+*/
+$opt = get_option( 'api_key_settings' );
+if( $opt['api_key_mode'] == 'live' ){
+	Stripe::setApiKey( trim( $opt['api_key_live_secret'] ) );
+}
+if( $opt['api_key_mode'] == 'test' ){
+	Stripe::setApiKey( trim( $opt['api_key_test_secret'] ) );
+}
+$opt = null;
+
+/* Returns up to 100 of the most recent customers */
 function get_customers(){
-	$data = Stripe_Customer::all();
+	$data = Stripe_Customer::all( array( 'count' => 100 ) );
 	$raw_customers = $data->data;
 	
 	$customers = null;
@@ -18,6 +31,35 @@ function get_customers(){
 	return $customers;
 }
 
+function get_all_customers( $chunk_size = 100 ){
+	
+	// Initially set count_offset to 0 because there may be no need to 
+	// do any further iterations (less than 100 customers are in the
+	// system.
+	$count_offset = 0;
+	
+	$customers = null;
+	$current_chunk = null;
+	do{
+		$current_chunk = Stripe_Customer::all(
+			array( 'count' => $chunk_size, 'offset' => $count_offset ) );
+		
+	
+		if( count( $current_chunk->data ) > 0 ){
+			foreach( $current_chunk->data as $cust ){
+				$customers[] = new Customer( $cust );
+			}
+		}
+	
+		if( count( $customers ) < $current_chunk->count ){
+			$count_offset = $count_offset + $chunk_size;
+		}
+	
+	}while( count( $customers ) < $current_chunk->count );
+	
+	return $customers;
+} 
+
 function get_transfers() {
 	$transfers = Stripe_Transfer::all( array( 'count' => 100 ) );
 
@@ -27,7 +69,6 @@ function get_transfers() {
 function get_transfer ( $transfer_id ) {
 	$transfer = Stripe_Transfer::retrieve( $transfer_id );
 	return $transfer;
-	//return $transfers->data;
 }
 
 function get_transactions_by_transfer( $transfer_id ){

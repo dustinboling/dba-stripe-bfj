@@ -49,6 +49,13 @@ function add_parameter_transfer_id( $qvars )
 }
 add_filter('query_vars', 'add_parameter_transfer_id' );
 
+function add_parameter_customer_id( $qvars )
+{
+	$qvars[] = 'customer_id';
+	return $qvars;
+}
+add_filter('query_vars', 'add_parameter_customer_id' );
+
 
 // Actions (Overview)
 // ----------------------------------------------------------------------------------------------------------

@@ -3,16 +3,16 @@
 //Our class extends the WP_List_Table class, so we need to make sure that it's there
 require_once( 'stripe-transactions-table.php' );
 require_once( 'stripe-transfers-table.php' );
+require_once( 'stripe-customers-table.php' );
 
 if( ! function_exists( 'dba_stripe_show_main_menu' ) ) {
 	function dba_stripe_show_main_menu(){
 		
-		echo '<div class="wrap"><h2>Donations</h2><br /><br />';
+		echo '<div class="wrap"><h2>DBA Commerce</h2><br><br>';
+		echo '<a href="'.get_admin_url().'admin.php?page=dba_stripe_customers">Customers</a><br>';
 		echo '<a href="'.get_admin_url().'admin.php?page=dba_stripe_transfer_history">Transfer History</a>';
-		
 		echo '</div>';
-		echo '<div style="position: absolute; bottom: 0px;">Powered by <a href="http://www.dustinboling.com">DBA Commerce</a> Designed by <a href="http://www.dustinboling.com">Dustin Boling Associates</a>';
-		echo '</div>';
+		show_dba_stripe_footer();
 	}
 }
 
@@ -20,12 +20,28 @@ if( ! function_exists( 'dba_stripe_show_transfer_history' ) ) {
 	function dba_stripe_show_transfer_history(){
 		
 		echo '<div class="wrap"><h2>Transfer History</h2>';
-		$myListTable = new Transfers_Table();
-		$myListTable->prepare_items();
-		$myListTable->display();
+		$options = get_option( 'api_key_settings' );
+		if( isset( $options['api_key_mode'] ) ){
+			if( $options['api_key_mode'] == 'live' ){
+				if( !empty( $options['api_key_live_secret'] ) && !empty( $options['api_key_live_publishable'] ) ){
+					$myListTable = new Transfers_Table();
+					$myListTable->prepare_items();
+					$myListTable->display();		
+				}else{
+					echo 'Both Live API Keys are required. Please enter both keys in the settings panel.';
+				}
+			}else{
+				if( !empty( $options['api_key_test_secret'] ) && !empty( $options['api_key_test_publishable'] ) ){
+					$myListTable = new Transfers_Table();
+					$myListTable->prepare_items();
+					$myListTable->display();		
+				}else{
+					echo 'Both Test API Keys are required. Please enter both keys in the settings panel.';
+				}
+			}
+		}
 		echo '</div>'; 
-		echo '<div style="position: absolute; bottom: 0px;">Powered by <a href="http://www.dustinboling.com">DBA Commerce</a> Designed by <a href="http://www.dustinboling.com">Dustin Boling Associates</a>';
-		echo '</div>';		
+		show_dba_stripe_footer();	
 	}
 }
 
@@ -59,8 +75,24 @@ if( ! function_exists( 'dba_stripe_show_transfer_detail' ) ) {
 		}		
 		
 		echo '</div>'; 
-		echo '<div style="position: absolute; bottom: 0px;">Powered by <a href="http://www.dustinboling.com">DBA Commerce</a> Designed by <a href="http://www.dustinboling.com">Dustin Boling Associates</a>';
-		echo '</div>';		
+		show_dba_stripe_footer();	
+	}
+}
+
+if( ! function_exists( 'dba_stripe_show_customers' ) ) {
+	function dba_stripe_show_customers(){
+		?>
+			<div class='wrap'>
+				<div id="icon-tools" class="icon32"></div>
+				<h2>Customers</h2>
+				<?php
+					$customers_table = new Customers_Table();
+					$customers_table->prepare_items();
+					$customers_table->display();
+				
+				?>
+			</div>
+		<?php	
 	}
 }
 
@@ -81,5 +113,12 @@ if( ! function_exists( 'dba_stripe_show_settings' ) ) {
 				</form>	
 			</div>
 		<?
+	}
+}
+
+if( ! function_exists( 'show_dba_stripe_footer' ) ){
+	function show_dba_stripe_footer(){
+		echo '<div style="position: absolute; bottom: 0px;">Powered by <a href="http://www.dustinboling.com">DBA Commerce</a> Designed by <a href="http://www.dustinboling.com">Dustin Boling Associates</a>';
+		echo '</div>';	
 	}
 }
