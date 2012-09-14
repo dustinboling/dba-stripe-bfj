@@ -9,14 +9,18 @@ require_once( 'business_objects/event.php' );
 Get the API Key from the settings in the DB. The type of key (whether live or test)
 is dependent upon the setting in the options page. 
 */
+
 $opt = get_option( 'api_key_settings' );
-if( $opt['api_key_mode'] == 'live' ){
-	Stripe::setApiKey( trim( $opt['api_key_live_secret'] ) );
+if( isset( $opt ) ){
+	if( isset( $opt['api_key_mode'] ) ) {
+		if( $opt['api_key_mode'] == 'live' ){
+			Stripe::setApiKey( trim( $opt['api_key_live_secret'] ) );
+		}
+		if( $opt['api_key_mode'] == 'test' ){
+			Stripe::setApiKey( trim( $opt['api_key_test_secret'] ) );
+		}
+	}
 }
-if( $opt['api_key_mode'] == 'test' ){
-	Stripe::setApiKey( trim( $opt['api_key_test_secret'] ) );
-}
-$opt = null;
 
 /* Returns up to 100 of the most recent customers */
 function get_customers(){
@@ -63,6 +67,7 @@ function get_all_customers( $chunk_size = 100 ){
 } 
 
 function get_customers_by_page( $page, $chunk_size = 100 ){
+
 	$cust_data = Stripe_Customer::all( 
 		array( 'count' => $chunk_size, 'offset' => ( ( $page - 1) * $chunk_size ) ) );
 	$raw_customers = $cust_data->data;
@@ -133,7 +138,7 @@ function get_transfers_by_page( $page, $chunk_size = 100 ){
 
 function get_transfer ( $transfer_id ) {
 	$transfer = Stripe_Transfer::retrieve( $transfer_id );
-	return $transfer->data;
+	return $transfer;
 }
 
 function get_transfer_count(){
@@ -224,4 +229,40 @@ function get_customer( $id ) {
 	$customer = Stripe_Customer::retrieve( $id );
 
 	return $customer->data;
+}
+
+function check_test_keys_exist(){
+	$options = get_option( 'api_key_settings' );
+	if( isset( $options ) ) {
+		if( isset( $options['api_key_mode'] ) ){
+			if( !empty( $options['api_key_mode'] ) ){
+				if( $options['api_key_mode'] == 'test' ){
+					if( isset( $options['api_key_test_secret'] ) && isset( $options['api_key_test_publishable'] ) ){
+						if( !empty( $options['api_key_test_secret'] ) && !empty( $options['api_key_test_publishable'] ) ){
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
+function check_live_keys_exist(){
+	$options = get_option( 'api_key_settings' );
+	if( isset( $options ) ) {
+		if( isset( $options['api_key_mode'] ) ){
+			if( !empty( $options['api_key_mode'] ) ){
+				if( $options['api_key_mode'] == 'live' ){
+					if( isset( $options['api_key_live_secret'] ) && isset( $options['api_key_live_publishable'] ) ){
+						if( !empty( $options['api_key_live_secret'] ) && !empty( $options['api_key_live_publishable'] ) ){
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
 }

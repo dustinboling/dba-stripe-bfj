@@ -47,6 +47,7 @@ class Customers_Table extends WP_List_Table {
 		$this->_column_headers = array($columns, $hidden, $sortable);
 		$per_page = 10;
 		$current_page = $this->get_pagenum();
+		
 		$total_items = get_customer_count();
 		$data = get_customers_by_page( $current_page, $per_page );
 	 

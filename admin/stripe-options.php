@@ -32,6 +32,7 @@ function add_defaults_fn() {
 if ( ! function_exists( 'dba_stripe_add_options' ) ) {
 	function dba_stripe_add_options() {
 	
+		
 		// Add Top-Level Menu to WordPress
 		add_menu_page(
 			'DBA Commerce', 
@@ -39,7 +40,8 @@ if ( ! function_exists( 'dba_stripe_add_options' ) ) {
 			'administrator', 
 			'dba_stripe_menu',
 			'dba_stripe_show_main_menu');
-			
+		
+		if( check_live_keys_exist() || check_test_keys_exist() ){	
 		// Add Submenu to the Top-Level Menu
 		add_submenu_page(
 			'dba_stripe_menu',
@@ -67,6 +69,7 @@ if ( ! function_exists( 'dba_stripe_add_options' ) ) {
 			'dba_stripe_customers',
 			'dba_stripe_show_customers'
 		);
+		}
 		
 		add_submenu_page(
 			'dba_stripe_menu',
@@ -157,36 +160,86 @@ if( ! function_exists( 'api_key_mode_callback' ) ){
 	function api_key_mode_callback(){
 		?>	
 		<?php $options = get_option( 'api_key_settings' ); ?>
+		<?php 
+		if( isset( $options['api_key_mode'] ) ) { 
+			if( !empty( $options['api_key_mode'] ) ) { ?>
 		<input type="radio" name="api_key_settings[api_key_mode]" value="live"<?php checked( 'live' == $options['api_key_mode'] ); ?> /> Live
 		<input type="radio" name="api_key_settings[api_key_mode]" value="test"<?php checked( 'test' == $options['api_key_mode'] ); ?> /> Test
-		<?php
+		<?php }else { ?>
+			<input type="radio" name="api_key_settings[api_key_mode]" value="live" /> Live
+			<input type="radio" name="api_key_settings[api_key_mode]" value="test" /> Test		
+		<?php }
+		}else{ ?>
+			<input type="radio" name="api_key_settings[api_key_mode]" value="live" /> Live
+			<input type="radio" name="api_key_settings[api_key_mode]" value="test" /> Test	
+		<?php }
 	}
 }
 
 if( ! function_exists( 'api_key_live_secret_callback' ) ) {
 	function api_key_live_secret_callback(){
 		$options = get_option( 'api_key_settings' );
-		echo "<input id='api_key_live_secret' name='api_key_settings[api_key_live_secret]' type='text' value='{$options['api_key_live_secret']}' />\n";
+		$output = "<input id='api_key_live_secret' name='api_key_settings[api_key_live_secret]' type='text' value='";
+		if( isset( $options['api_key_live_secret'] ) ){
+			if( !empty( $options['api_key_live_secret'] ) ) {
+				$output .= $options['api_key_live_secret']."' />\n";
+			}else{
+				$output .= "' />\n";
+			}
+		}else{
+			$output .= "' />\n";
+		}
+		echo $output;
 	}
 }
 
 if( !  function_exists( 'api_key_live_publishable_callback' ) ) {
 	function api_key_live_publishable_callback(){
 		$options = get_option( 'api_key_settings' );
-		echo "<input id='api_key_live_publishable' name='api_key_settings[api_key_live_publishable]' type='text' value='{$options['api_key_live_publishable']}' />";
+		$output = "<input id='api_key_live_publishable' name='api_key_settings[api_key_live_publishable]' type='text' value='";
+		if( isset( $options['api_key_live_publishable'] ) ){
+			if( !empty( $options['api_key_live_publishable'] ) ) {
+				$output .= $options['api_key_live_publishable']."' />\n";
+			}else{
+				$output .= "' />\n";
+			}
+		}else{
+			$output .= "' />\n";
+		}
+		echo $output;
 	}
 }
 
 if( ! function_exists( 'api_key_test_secret_callback' ) ) {
 	function api_key_test_secret_callback(){
 		$options = get_option( 'api_key_settings' );
-		echo "<input id='api_key_test_secret' name='api_key_settings[api_key_test_secret]' type='text' value='{$options['api_key_test_secret']}' />\n";
+		$output = "<input id='api_key_test_secret' name='api_key_settings[api_key_test_secret]' type='text' value='";
+		if( isset( $options['api_key_test_secret'] ) ){
+			if( !empty( $options['api_key_test_secret'] ) ) {
+				$output .= $options['api_key_test_secret']."' />\n";
+			}else{
+				$output .= "' />\n";
+			}
+		}else{
+			$output .= "' />\n";
+		}
+		echo $output;
 	}
 }
 
 if( !  function_exists( 'api_key_test_publishable_callback' ) ) {
 	function api_key_test_publishable_callback(){
 		$options = get_option( 'api_key_settings' );
-		echo "<input id='api_key_test_publishable' name='api_key_settings[api_key_test_publishable]' type='text' value='{$options['api_key_test_publishable']}' />";
+		$output = "<input id='api_key_test_publishable' name='api_key_settings[api_key_test_publishable]' type='text' value='";
+		if( isset( $options['api_key_test_publishable'] ) ){
+			if( !empty( $options['api_key_test_publishable'] ) ) {
+				$output .= $options['api_key_test_publishable']."' />\n";
+			}else{
+				$output .= "' />\n";
+			}
+		}else{
+			$output .= "' />\n";
+		}
+		echo $output;
 	}
 }
