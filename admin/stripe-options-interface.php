@@ -4,6 +4,7 @@
 require_once( 'stripe-transactions-table.php' );
 require_once( 'stripe-transfers-table.php' );
 require_once( 'stripe-customers-table.php' );
+require_once( 'stripe-user-charges.php' );
 
 if( ! function_exists( 'dba_stripe_show_main_menu' ) ) {
 	function dba_stripe_show_main_menu(){
@@ -135,6 +136,39 @@ if( ! function_exists( 'dba_stripe_show_customers' ) ) {
 			</div>
 		<?php	
 	}
+}
+
+if( ! function_exists( 'dba_stripe_show_charge_history_view_only' ) ) {
+	function dba_stripe_show_charge_history_view_only(){
+		$current_user = wp_get_current_user();
+		?>
+		<div class='wrap'>
+			<h2>Charge History</h2>
+			<?php
+			// Get user account from user profile
+			$stripe_acct = get_current_user_stripe_account();
+			
+			try{
+				$cust = get_customer( $stripe_acct );
+				
+				echo '<div id="message" class="updated"><br>';
+				echo '<strong>Name: </strong>'.$current_user->display_name.'<br>';
+				echo '<strong>Account: </strong>'.$cust->id.'<br>';
+				echo '<br></div>';
+				$charge_table = new User_Charges_Table( $cust->id );
+				$charge_table->prepare_items();
+				$charge_table->display();
+			
+			}catch( Stripe_InvalidRequestError $exception){
+				echo '<div id="message" class="updated">';
+				echo '<br><strong>ERROR: '.$exception->getMessage().'</strong><br><br>';
+				echo '</div>';
+			}
+			
+			?>
+		</div>
+		<?php	
+	}	
 }
 
 if( ! function_exists( 'dba_stripe_show_settings' ) ) {

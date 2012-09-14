@@ -124,7 +124,7 @@ function get_all_transfers( $chunk_size = 100 ){
 
 function get_transfers_by_page( $page, $chunk_size = 100 ){
 	$trfr_data = Stripe_Transfer::all( 
-		array( 'count' => $chunk_size, 'offset' => ( ( $page - 1) * $chunk_size ) ) );
+		array( 'count' => $chunk_size, 'offset' => ( ( $page - 1 ) * $chunk_size ) ) );
 		$raw_transfers = $trfr_data->data;
 	
 	$transfers = null;
@@ -159,6 +159,28 @@ function get_transactions_by_transfer( $transfer_id ){
 	}
 	
 	return $charges;
+}
+
+function get_charges_by_customer_by_page( $customer_id, $page, $chunk_size = 25 ){
+	$raw_charge_data = Stripe_Charge::all( 
+		array( 'count' => $chunk_size, 
+			   'offset' => ( ( $page - 1 ) * $chunk_size ),
+			   'customer' => $customer_id ) 
+			 );
+	$raw_charge_data = $raw_charge_data->data;
+
+	$charges = null;
+	foreach( $raw_charge_data as $charge ){
+		$tmp_bc = new BasicCharge( $charge );
+		$charges[] = new Charge( $tmp_bc );
+	}
+	
+	return $charges;
+}
+
+function get_customer_charge_count(){
+	$chrg_data = Stripe_Charge::all( array( 'count' => 1 ) );
+	return $chrg_data->count;
 }
 
 function get_events_charge_refunded(){
@@ -218,7 +240,6 @@ function get_transactions() {
 
 }
 
-
 function get_charge( $id ) {
 	$charge = Stripe_Charge::retrieve( $id );
 
@@ -226,9 +247,13 @@ function get_charge( $id ) {
 }
 
 function get_customer( $id ) {
-	$customer = Stripe_Customer::retrieve( $id );
+	$customer = json_decode(Stripe_Customer::retrieve( $id ));
+	return $customer;
+}
 
-	return $customer->data;
+function get_current_user_stripe_account(){
+	$stripe_account = get_user_meta( get_current_user_id( ), 'stripe_account' );
+	return trim( $stripe_account[0] );
 }
 
 function check_test_keys_exist(){

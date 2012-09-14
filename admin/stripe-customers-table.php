@@ -11,6 +11,7 @@ class Customers_Table extends WP_List_Table {
 	function get_columns(){
 		$columns = array(
 						'customer' => 'Customer',
+						'account' => 'Account',
 						'email' => 'Email',
 						'balance' => 'Balance',
 						'delinquent' => 'Delinquent',
@@ -36,6 +37,8 @@ class Customers_Table extends WP_List_Table {
 		    	}
 		    case 'details':
 		    	return '<a class="button-secondary" href="'.get_admin_url().'admin.php?page=dba_stripe_customer_detail&customer_id='.$item->id.'" title="Show Details">Show Details</a>';
+		    case 'account':
+		    	return $item->id;
 		}
     }
 
@@ -45,8 +48,9 @@ class Customers_Table extends WP_List_Table {
 		$hidden = array();
 		$sortable = array();
 		$this->_column_headers = array($columns, $hidden, $sortable);
-		$per_page = 10;
+		$per_page = 25;
 		$current_page = $this->get_pagenum();
+		echo 'Blah!';
 		
 		$total_items = get_customer_count();
 		$data = get_customers_by_page( $current_page, $per_page );
@@ -56,6 +60,7 @@ class Customers_Table extends WP_List_Table {
 			array( 'total_items' => $total_items, 'per_page' => $per_page ) );
 		
 		$this->items = $data;
+		
 	}
 	
 

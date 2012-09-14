@@ -42,33 +42,44 @@ if ( ! function_exists( 'dba_stripe_add_options' ) ) {
 			'dba_stripe_show_main_menu');
 		
 		if( check_live_keys_exist() || check_test_keys_exist() ){	
-		// Add Submenu to the Top-Level Menu
-		add_submenu_page(
-			'dba_stripe_menu',
-			'Transfer History',
-			'Transfer History',
-			'administrator',
-			'dba_stripe_transfer_history',
-			'dba_stripe_show_transfer_history'
-		);	
-		
-		add_submenu_page(
-			null,
-			'Transfer Detail',
-			'Transfer Detail',
-			'administrator',
-			'dba_stripe_transfer_detail',
-			'dba_stripe_show_transfer_detail'
-		);
-		
-		add_submenu_page(
-			'dba_stripe_menu',
-			'Customers',
-			'Customers',
-			'administrator',
-			'dba_stripe_customers',
-			'dba_stripe_show_customers'
-		);
+
+			// Add Submenu to the Top-Level Menu
+			add_submenu_page(
+				'dba_stripe_menu',
+				'Transfer History',
+				'Transfer History',
+				'administrator',
+				'dba_stripe_transfer_history',
+				'dba_stripe_show_transfer_history'
+			);	
+			
+			add_submenu_page(
+				null,
+				'Transfer Detail',
+				'Transfer Detail',
+				'administrator',
+				'dba_stripe_transfer_detail',
+				'dba_stripe_show_transfer_detail'
+			);
+			
+			add_submenu_page(
+				'dba_stripe_menu',
+				'Customers',
+				'Customers',
+				'administrator',
+				'dba_stripe_customers',
+				'dba_stripe_show_customers'
+			);
+			
+			add_submenu_page(
+				'dba_stripe_menu',
+				'Transaction History',
+				'Transaction History',
+				'stripe_view',
+				'dba_stripe_charge_history_view_only',
+				'dba_stripe_show_charge_history_view_only'
+			);
+
 		}
 		
 		add_submenu_page(

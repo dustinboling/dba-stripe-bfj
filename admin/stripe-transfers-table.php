@@ -45,7 +45,7 @@ class Transfers_Table extends WP_List_Table {
 		$sortable = array();
 		$this->_column_headers = array($columns, $hidden, $sortable);
 		
-		$per_page = 10;
+		$per_page = 25;
 		$current_page = $this->get_pagenum();
 		$total_items = get_transfer_count();
 		$data = get_transfers_by_page( $current_page, $per_page );
