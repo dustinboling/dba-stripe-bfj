@@ -79,6 +79,15 @@ if ( ! function_exists( 'dba_stripe_add_options' ) ) {
 				'dba_stripe_charge_history_view_only',
 				'dba_stripe_show_charge_history_view_only'
 			);
+			
+			add_submenu_page( 
+				'dba_stripe_menu',
+				'Create Customer',
+				'Create Customer',
+				'administrator',
+				'dba_stripe_add_customer',
+				'dba_stripe_show_add_customer'
+			);
 
 		}
 		

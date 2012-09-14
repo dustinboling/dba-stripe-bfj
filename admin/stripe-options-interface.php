@@ -171,6 +171,54 @@ if( ! function_exists( 'dba_stripe_show_charge_history_view_only' ) ) {
 	}	
 }
 
+if( ! function_exists( 'dba_stripe_show_add_customer' ) ) {
+	function dba_stripe_show_add_customer(){
+		?>
+			<div class='wrap'>
+				<h2>Create Customer</h2>
+				<form action="javascript:void(0);">
+				
+					<ul>
+				
+						<li>
+							<label>Name: </label>
+							<input type="text" 
+								   name="customer_name"
+								   id="customer_name" />
+						</li>
+							<label>Email: </label>
+							<input type="text" 
+								   name="customer_email"
+								   id="customer_email" />
+						</li>
+						<br><br>
+						<li>
+							<input class="submit-button"
+								   type="submit"
+								   value="Create Customer" />
+						
+						</li>
+						
+					</ul>
+				
+				</form>	
+			</div>
+			<script>
+				jQuery(function() {
+					jQuery(".submit-button").click(function(){
+						var name = jQuery("#customer_name").val();
+						alert("Hi " + name);
+					})
+				})
+			
+			
+			
+			</script>
+			
+		<?
+	}
+}
+
 if( ! function_exists( 'dba_stripe_show_settings' ) ) {
 	function dba_stripe_show_settings(){
 		?>

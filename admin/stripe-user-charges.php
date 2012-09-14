@@ -24,14 +24,18 @@ class User_Charges_Table extends WP_List_Table {
 	
 	function column_default( $item, $column_name ) {
 	    setlocale(LC_MONETARY, 'en_US');
+	    $net_charge = $item->amount - $item->amount_refunded;
 	    
 	    switch( $column_name ) {
 		    case 'status':
 		    	if( $item->refunded ){
 			    	return 'Refunded';
 		    	}else{
-		    		if( $item->refund_gross > 0){
+		    		
+		    		if( ( $item->amount_refunded > 0) && ( $net_charge > 0 ) ) {
 			    		return 'Partially Refunded';
+		    		}elseif( $net_charge == 0 ){
+			    		return 'Refunded';	
 		    		}else{
 			    		return 'Paid';
 			    	}
@@ -50,7 +54,6 @@ class User_Charges_Table extends WP_List_Table {
 		    case 'refund':
 		    	return money_format( '%(#5n', ( $item->amount_refunded / 100 ) );
 		    case 'net_charge':
-		    	$net_charge = $item->amount - $item->amount_refunded;
 		    	return money_format( '%(#5n', ( $net_charge / 100 ) );
 	    }
     }
