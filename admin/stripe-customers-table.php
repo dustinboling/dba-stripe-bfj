@@ -41,6 +41,14 @@ class Customers_Table extends WP_List_Table {
 		    	return $item->id;
 		}
     }
+    
+    function column_customer( $item ) {
+	    $actions = array(
+	    	'edit' => sprintf('<a href="?page=%s&action=%s&book=%s">Edit</a>',$_REQUEST['page'],'edit',$item->id),
+	    	'delete' => sprintf('<a href="?page=%s&action=%s&book=%s">Delete</a>',$_REQUEST['page'],'delete',$item->id),
+	    );
+	    return sprintf('%1$s %2$s', '<a href="'.get_admin_url().'admin.php?page=dba_stripe_customer_detail&customer_id='.$item->id.'" title="Show Details"><strong>'.$item->name.'</strong></a>', $this->row_actions($actions) );
+    }
 
 	function prepare_items() {
 		
@@ -50,7 +58,6 @@ class Customers_Table extends WP_List_Table {
 		$this->_column_headers = array($columns, $hidden, $sortable);
 		$per_page = 25;
 		$current_page = $this->get_pagenum();
-		echo 'Blah!';
 		
 		$total_items = get_customer_count();
 		$data = get_customers_by_page( $current_page, $per_page );

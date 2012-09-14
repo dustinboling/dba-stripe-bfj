@@ -1,5 +1,11 @@
 <?php 
 include_once($_SERVER['DOCUMENT_ROOT'].'/wp-load.php' );
-if ( $REQUEST_URL == $URL_OF_CURRENT_PAGE ) die ("Access Denied!");
+if( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && ( $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' ) ) {
+
+
+} else {
+	echo 'Access Denied';
+}
+
+
 ?>
-BLAH!

@@ -173,6 +173,7 @@ if( ! function_exists( 'dba_stripe_show_charge_history_view_only' ) ) {
 
 if( ! function_exists( 'dba_stripe_show_add_customer' ) ) {
 	function dba_stripe_show_add_customer(){
+	$plugin_uri = plugins_url( 'processing/create_customer.php' , __FILE__ );
 		?>
 			<div class='wrap'>
 				<h2>Create Customer</h2>
@@ -200,16 +201,21 @@ if( ! function_exists( 'dba_stripe_show_add_customer' ) ) {
 						</li>
 						
 					</ul>
-				
 				</form>	
 			</div>
 			<script>
 				jQuery(function() {
 					jQuery(".submit-button").click(function(){
 						var name = jQuery("#customer_name").val();
-						alert("Hi " + name);
-					})
-				})
+						var email = jQuery("#customer_email").val();
+						alert("Blah!");
+						jQuery.get('<?php echo $plugin_uri; ?>', {
+							name:jQuery("#customer_name").val(),
+							email:jQuery("#customer_email").val()}							
+						);
+						
+					});
+				});
 			
 			
 			
