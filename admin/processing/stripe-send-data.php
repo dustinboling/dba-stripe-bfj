@@ -19,7 +19,18 @@ if( isset( $opt ) ){
 	}
 }
 
-function create_customer( $customer_name, $customer_email ){
-	Stripe_Customer::create( 
-		array( "description" => $customer_name, 'email' => $customer_email ) );
+function create_customer( $customer_name, $customer_email, $card ){
+	if( $card ){
+		$cust = Stripe_Customer::create( 
+			array( 'description' => $customer_name, 'email' => $customer_email, 
+				   'card' => array(
+				   					'number' => $card->get_card_number(),
+				   					'exp_month' => $card->get_exp_month(),
+				   					'exp_year' => $card->get_exp_year(),
+				   					'cvc' => $card->get_cvc() ) ) );
+	}else{
+		$cust = Stripe_Customer::create( 
+			array( 'description' => $customer_name, 'email' => $customer_email ) );
+	}
+	return $cust;
 }

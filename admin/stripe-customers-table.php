@@ -4,7 +4,7 @@
 if( ! class_exists( 'WP_List_Table' ) ) {
     require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 }
-require_once( 'stripe-retrieve-data.php' );
+require_once( 'stripe-processing.php' );
 
 class Customers_Table extends WP_List_Table {
 
@@ -24,9 +24,18 @@ class Customers_Table extends WP_List_Table {
 		setlocale(LC_MONETARY, 'en_US');
 	    switch( $column_name ) {	    
 		    case 'customer':
+		    	if( !empty( $item->name ) ){
 		    	return '<a href="'.get_admin_url().'admin.php?page=dba_stripe_customer_detail&customer_id='.$item->id.'" title="Show Details">'.$item->name.'</a>';
+		    	}else{
+			    	return '<a href="'.get_admin_url().'admin.php?page=dba_stripe_customer_detail&customer_id='.$item->id.'" title="Show Details">NA</a>';
+		    	}
 		    case 'email':
-		    	return $item->email;
+		    	if( !empty( $item->email ) ) {
+			    	return $item->email;
+		    	}else{
+			    	return 'N/A';
+		    	}
+		    	
 		    case 'balance':
 		    	return money_format( '%(#5n', ( $item->account_balance / 100 ) );
 		    case 'delinquent':
@@ -44,8 +53,8 @@ class Customers_Table extends WP_List_Table {
     
     function column_customer( $item ) {
 	    $actions = array(
-	    	'edit' => sprintf('<a href="?page=%s&action=%s&book=%s">Edit</a>',$_REQUEST['page'],'edit',$item->id),
-	    	'delete' => sprintf('<a href="?page=%s&action=%s&book=%s">Delete</a>',$_REQUEST['page'],'delete',$item->id),
+	    	'edit' => sprintf('<a href="?page=%s&action=%s&customer=%s">Edit</a>','dba_stripe_edit_customer','edit',$item->id),
+	    	'delete' => sprintf('<a href="?page=%s&action=%s&customer=%s">Delete</a>',$_REQUEST['page'],'delete',$item->id),
 	    );
 	    return sprintf('%1$s %2$s', '<a href="'.get_admin_url().'admin.php?page=dba_stripe_customer_detail&customer_id='.$item->id.'" title="Show Details"><strong>'.$item->name.'</strong></a>', $this->row_actions($actions) );
     }
@@ -58,7 +67,6 @@ class Customers_Table extends WP_List_Table {
 		$this->_column_headers = array($columns, $hidden, $sortable);
 		$per_page = 25;
 		$current_page = $this->get_pagenum();
-		
 		$total_items = get_customer_count();
 		$data = get_customers_by_page( $current_page, $per_page );
 	 
@@ -67,7 +75,6 @@ class Customers_Table extends WP_List_Table {
 			array( 'total_items' => $total_items, 'per_page' => $per_page ) );
 		
 		$this->items = $data;
-		
 	}
 	
 

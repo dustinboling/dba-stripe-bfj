@@ -246,9 +246,23 @@ function get_charge( $id ) {
 	return $charge->data;
 }
 
+function customer_exists( $cust_id ){
+	$c = get_customer( $cust_id );
+	if( $c ){
+		return true;
+	}
+	return false;
+}
+
 function get_customer( $id ) {
 	$customer = json_decode(Stripe_Customer::retrieve( $id ));
 	return $customer;
+}
+
+function delete_customer( $cust_id ){
+	$c = Stripe_Customer::retrieve( $cust_id );
+	$c->delete();
+	return json_decode($c);
 }
 
 function get_current_user_stripe_account(){

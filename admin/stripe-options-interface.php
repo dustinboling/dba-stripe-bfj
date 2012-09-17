@@ -103,17 +103,229 @@ if( ! function_exists( 'dba_stripe_show_transfer_detail' ) ) {
 	}
 }
 
+if( ! function_exists( 'dba_stripe_show_edit_customer' ) ) {
+	function dba_stripe_show_edit_customer(){
+		$customer = null;
+		if( isset( $_GET['customer'] ) ) {
+			if( customer_exists( $_GET['customer'] ) ){
+				$customer = get_customer( $_GET['customer'] );	
+			}else{
+				
+			}
+		}		
+		?>
+		<style>
+			fieldset {
+				border: 1px solid #000000;
+				width: 250px;
+				padding-left: 20px;
+				padding-bottom: 15px;
+				-webkit-border-radius: 8px;
+				-moz-border-radius: 8px;
+				border-radius: 8px;
+			}
+			
+			legend {
+				color: #000000;
+				padding: 2px;
+			}
+			
+			.legend-text {
+				font-weight: italic;
+			}
+			
+			.FormInfo td {
+				padding-top: 10px;
+				padding-left: 15px;
+			}
+			
+			.FormInfo th {
+				padding-top: 10px;
+				text-align: right;
+			}
+		</style>
+		<div class='wrap'>
+			<?php
+			if( !empty( $customer ) ){
+				echo '<h2>Edit '.$customer->description.'</h2>';
+			}else{
+				echo '<h2>Edit Customer</h2>';	
+			}
+			?>
+			
+			<div id="message" class="updated" style="display:none;"></div>
+			<form action="javascript:void(0);">
+				<div style="padding: 10px;">
+					<fieldset style="width: 350px;">
+						<legend>Name & Email</legend>
+						<table class="FormInfo" >
+							<tr>	
+								<th>Name</th>
+								<td>
+									<input type="text" 
+									   name="customer_name"
+									   id="customer_name" 
+									   size="35"
+									   <?php echo 'value="'.$customer->description.'"'; ?>>
+								</td>
+							</tr>
+							<tr>
+								<th>Email</th>
+								<td>
+									<input type="text" 
+									   	   name="customer_email"
+									       id="customer_email" 
+									       size="35"
+									       <?php echo 'value="'.$customer->email.'"'; ?>>
+								</td>
+							</tr>
+							
+													
+						</table>
+					</fieldset>
+					
+					<fieldset style="margin-top: 15px; width: 350px;">
+						<legend>Credit Card Information</legend>
+						<table class="FormInfo">
+							
+							<?php if( !empty( $customer->active_card->last4 ) ) : ?>
+								<tr>	
+									<th>Current<br>Card Number</th>
+									<td>
+										<?php echo '****************'.$customer->active_card->last4; ?>
+									</td>
+								</tr>
+							<?php endif; ?>
+							
+							<?php if( !empty( $customer->active_card->type ) ) : ?>
+								<tr>	
+									<th>Current<br>Card Type</th>
+									<td>
+										<?php echo $customer->active_card->type; ?>
+									</td>
+								</tr>
+							<?php endif; ?>
+							
+							<tr>	
+								<th>New Card<br>Number</th>
+								<td>
+									<input type="text" 
+									   name="customer_card_number"
+									   id="customer_card_number" 
+									   size="25" >
+								</td>
+							</tr>
+							<tr>
+								<th>New CVC</th>
+								<td>
+									<input type="text"
+										   name="customer_card_verification_code"
+										   id="customer_card_verification_code" 
+										   size="25" >
+								</td>
+							</tr>
+							
+							<tr>
+								<th>Current<br>Expiration Date</th>
+								<td>
+									<select name="customer_card_exp_month"
+											id="customer_card_exp_month"
+											style="width: 50px;">
+										<?php
+											for( $j = 1; $j <= 12; $j++){
+												if( $j <= 9){
+													echo '<option';
+													$month = '0'.$j;
+													if( $customer->active_card->exp_month == ( $month ) ){
+														echo ' selected="selected"';
+													}													
+													echo '>'.$month.'</option>';
+												}else{
+													echo '<option>'.$j.'</option>';
+												}	
+											}
+										?>
+									</select>
+									
+									<?php $curr_year = date('Y'); ?>
+									<select name="customer_card_exp_year"
+											id="customer_card_exp_year"
+											style="width: 60px;">
+										<?php
+											for ( $i = 0; $i <= 10; $i++ ) {
+											    echo '<option';
+											    if( $customer->active_card->exp_year == ( $curr_year + $i ) ){
+											    	echo ' selected="selected"';
+											    }
+											    echo '>'.( $curr_year + $i ).'</option>';
+											}											
+										?>
+									</select>
+								</td>
+							</tr>
+							<tr><th></th><td></td></tr>
+							<tr>
+								<td colspan="2" style="text-align: left;">*Change expiration date to modify</td>
+							</tr>
+						
+						</table>
+					</fieldset>
+					
+					<br>
+					<input type="button" value="Back" onclick="history.back()">
+					
+					<input class="submit-button"
+						   style="margin-left: 219px;"
+						   type="submit"
+						   value="Update Customer" >
+						
+				</div>
+			</form>	
+		</div>
+		<?php	
+	}
+}
+
 if( ! function_exists( 'dba_stripe_show_customers' ) ) {
 	function dba_stripe_show_customers(){
 		?>
 			<div class='wrap'>
 				<div id="icon-tools" class="icon32"></div>
 				<h2>Customers</h2>
+				<div id="message" class="updated" style="display:none;"></div>
 				<?php
 					$options = get_option( 'api_key_settings' );
 					if( isset( $options['api_key_mode'] ) ){
 						if( $options['api_key_mode'] == 'live' ){
 							if( !empty( $options['api_key_live_secret'] ) && !empty( $options['api_key_live_publishable'] ) ){
+								if( isset( $_GET['action'] ) && isset( $_GET['customer']  ) ){
+									if( $_GET['action'] == 'delete' ){
+										if( customer_exists( $_GET['customer'] ) ){
+											$cust = get_customer( $_GET['customer'] );
+											if( !$cust->deleted ){
+												$del_cust = delete_customer( $_GET['customer']);
+												if( $del_cust->deleted ){
+													unset($_GET['action']);
+													unset($_GET['customer']);
+													?> 
+														<script type="text/javascript">
+															<?php if( !empty( $cust->description ) ) { ?>
+															var del_message = "<br><strong>Customer "<?php echo ' + '.'"'.$cust->description.'"'; ?> + ' deleted successfully.</strong><br><br>';
+															<?php }else{ ?>
+																var del_message = 'Customer successfully deleted!';
+															<?php } ?>
+															jQuery(function() {
+																
+																jQuery('#message').html(del_message);
+																jQuery('#message').fadeIn("slow").show();
+															})
+														</script>
+													<?php
+												}
+											}
+										}
+									}	
+								}
 								$customers_table = new Customers_Table();
 								$customers_table->prepare_items();
 								$customers_table->display();	
@@ -122,6 +334,35 @@ if( ! function_exists( 'dba_stripe_show_customers' ) ) {
 							}
 						}else{
 							if( !empty( $options['api_key_test_secret'] ) && !empty( $options['api_key_test_publishable'] ) ){
+								if( isset( $_GET['action'] ) && isset( $_GET['customer']  ) ){
+									if( $_GET['action'] == 'delete' ){
+										if( customer_exists( $_GET['customer'] ) ){
+											$cust = get_customer( $_GET['customer'] );
+											if( !$cust->deleted ){
+												$del_cust = delete_customer( $_GET['customer']);
+												if( $del_cust->deleted ){
+													unset($_GET['action']);
+													unset($_GET['customer']);
+													?> 
+														<script type="text/javascript">
+															<?php if( !empty( $cust->description ) ) { ?>
+															var del_message = "<br><strong>Customer "<?php echo ' + '.'"'.$cust->description.'"'; ?> + ' deleted successfully.</strong><br><br>';
+															<?php }else{ ?>
+																var del_message = 'Customer successfully deleted!';
+															<?php } ?>
+															jQuery(function() {
+																
+																jQuery('#message').html(del_message);
+																jQuery('#message').fadeIn("slow").show();
+															})
+														</script>
+													<?php
+												}
+											}
+										}
+
+									}	
+								}
 								$customers_table = new Customers_Table();
 								$customers_table->prepare_items();
 								$customers_table->display();	
@@ -175,32 +416,142 @@ if( ! function_exists( 'dba_stripe_show_add_customer' ) ) {
 	function dba_stripe_show_add_customer(){
 	$plugin_uri = plugins_url( 'processing/create_customer.php' , __FILE__ );
 		?>
+
+			<style>
+				fieldset {
+					border: 1px solid #000000;
+					width: 250px;
+					padding-left: 20px;
+					padding-bottom: 15px;
+					-webkit-border-radius: 8px;
+					-moz-border-radius: 8px;
+					border-radius: 8px;
+				}
+				
+				legend {
+					color: #000000;
+					padding: 2px;
+				}
+				
+				.legend-text {
+					font-weight: italic;
+				}
+				
+				.FormInfo td {
+					padding-top: 10px;
+					padding-left: 15px;
+				}
+				
+				.FormInfo th {
+					padding-top: 10px;
+					text-align: right;
+				}
+			</style>
 			<div class='wrap'>
 				<h2>Create Customer</h2>
+				<div id="message" class="updated" style="display:none;"></div>
 				<form action="javascript:void(0);">
-				
-					<ul>
-				
-						<li>
-							<label>Name: </label>
-							<input type="text" 
-								   name="customer_name"
-								   id="customer_name" />
-						</li>
-							<label>Email: </label>
-							<input type="text" 
-								   name="customer_email"
-								   id="customer_email" />
-						</li>
-						<br><br>
-						<li>
-							<input class="submit-button"
-								   type="submit"
-								   value="Create Customer" />
+					<div style="padding: 10px;">
+						<fieldset style="width: 350px;">
+							<legend>Personal Information</legend>
+							<table class="FormInfo" >
+								<tr>	
+									<th>Name</th>
+									<td>
+										<input type="text" 
+										   name="customer_name"
+										   id="customer_name" 
+										   size="35" >
+									</td>
+								</tr>
+								<tr>
+									<th>Email</th>
+									<td>
+										<input type="text" 
+										   	   name="customer_email"
+										       id="customer_email" 
+										       size="35" >
+									</td>
+								</tr>
+								
+														
+							</table>
+						</fieldset>
 						
-						</li>
+						<fieldset style="margin-top: 15px; width: 350px;">
+							<legend>Credit Card Information</legend>
+							<table class="FormInfo">
+								
+								<tr>	
+									<th>Card Number</th>
+									<td>
+										<input type="text" 
+										   name="customer_card_number"
+										   id="customer_card_number" 
+										   size="25" >
+									</td>
+								</tr>
+								<tr>
+									<th>Verification<br>Code</th>
+									<td>
+										<input type="text"
+											   name="customer_card_verification_code"
+											   id="customer_card_verification_code" 
+											   size="25" >
+									</td>
+								</tr>
+								
+								<tr>
+									<th>Expiration<br>Date</th>
+									<td>
+										<select name="customer_card_exp_month"
+												id="customer_card_exp_month"
+												style="width: 50px;">
+											<option>01</option>
+											<option>02</option>
+											<option>03</option>
+											<option>04</option>
+											<option>05</option>
+											<option>06</option>
+											<option>07</option>
+											<option>08</option>
+											<option>09</option>
+											<option>10</option>
+											<option>11</option>
+											<option>12</option>
+										</select>
+										
+										<?php $curr_year = date('Y'); ?>
+										<select name="customer_card_exp_year"
+												id="customer_card_exp_year"
+												style="width: 60px;">
+											<?php
+												for ($i = 0; $i <= 10; $i++) {
+												    echo '<option>'.( $curr_year + $i ).'</option>';
+												}											
+											?>
+										</select>
+									</td>
+								</tr>
+								
+								<tr><th></th><td></td></tr>
+								<tr>
+									<td colspan="2" style="text-align: left;">*Change expiration date to modify</td>
+								</tr>
+							
+							</table>
+						</fieldset>
 						
-					</ul>
+						<br>
+						
+						<input type="button" value="Back" onclick="history.back()">
+						
+						<input class="submit-button"
+							   style="margin-left: 221px;"
+							   type="submit"
+							   value="Create Customer" >
+						
+					</div>
 				</form>	
 			</div>
 			<script>
@@ -208,10 +559,22 @@ if( ! function_exists( 'dba_stripe_show_add_customer' ) ) {
 					jQuery(".submit-button").click(function(){
 						var name = jQuery("#customer_name").val();
 						var email = jQuery("#customer_email").val();
-						alert("Blah!");
+						var card_number = jQuery("#customer_card_number").val();
+						var code = jQuery("#customer_card_verification_code").val();
+						var exp_month = jQuery("#customer_card_exp_month").val();
+						var exp_year = jQuery("#customer_card_exp_year").val();
 						jQuery.get('<?php echo $plugin_uri; ?>', {
 							name:jQuery("#customer_name").val(),
-							email:jQuery("#customer_email").val()}							
+							email:jQuery("#customer_email").val(),
+							card_number:jQuery("#customer_card_number").val(),
+							code:jQuery("#customer_card_verification_code").val(),
+							exp_month:jQuery("#customer_card_exp_month").val(),
+							exp_year:jQuery("#customer_card_exp_year").val()},
+							
+							function(data){
+								jQuery('#message').html(jQuery.trim(data));
+								jQuery('#message').fadeIn("slow").show();
+							}
 						);
 						
 					});
