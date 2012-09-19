@@ -72,6 +72,15 @@ if ( ! function_exists( 'dba_stripe_add_options' ) ) {
 			);
 			
 			add_submenu_page(
+				null,
+				'Customer Profile Detail',
+				'Customer Profile Detail',
+				'administrator',
+				'dba_stripe_customer_detail',
+				'dba_stripe_show_customer_detail'
+			);
+			
+			$hook = add_submenu_page(
 				'dba_stripe_menu',
 				'Customers',
 				'Customers',

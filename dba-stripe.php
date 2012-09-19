@@ -42,21 +42,6 @@ function dba_stripe_defaults() {
 
 }
 
-function add_parameter_transfer_id( $qvars )
-{
-	$qvars[] = 'transfer_id';
-	return $qvars;
-}
-add_filter('query_vars', 'add_parameter_transfer_id' );
-
-function add_parameter_customer_id( $qvars )
-{
-	$qvars[] = 'customer_id';
-	return $qvars;
-}
-add_filter('query_vars', 'add_parameter_customer_id' );
-
-
 // Modify Subscriber role to be able to access part of the Stripe Plugin interface.
 // ----------------------------------------------------------------------------------------------------------
 function add_subscriber_stripe_view_capability(){

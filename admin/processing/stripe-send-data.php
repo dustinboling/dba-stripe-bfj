@@ -19,7 +19,7 @@ if( isset( $opt ) ){
 	}
 }
 
-function create_customer( $customer_name, $customer_email, $card ){
+function create_customer( $customer_name, $customer_email, $card=null ){
 	if( $card ){
 		$cust = Stripe_Customer::create( 
 			array( 'description' => $customer_name, 'email' => $customer_email, 
@@ -33,4 +33,21 @@ function create_customer( $customer_name, $customer_email, $card ){
 			array( 'description' => $customer_name, 'email' => $customer_email ) );
 	}
 	return $cust;
+}
+
+function update_customer( $customer_id, $customer_name, $customer_email, $card=null ){
+	$existing_customer = Stripe_Customer::retrieve( $customer_id );
+	$existing_customer->description = $customer_name;
+	$existing_customer->email = $customer_email;
+	if( $card ){
+		$new_card = array(
+	   					'number' => $card->get_card_number(),
+	   					'exp_month' => $card->get_exp_month(),
+	   					'exp_year' => $card->get_exp_year(),
+	   					'cvc' => $card->get_cvc() 
+	   					 );
+		$existing_customer->card = $new_card;
+	}
+	
+	return $existing_customer->save();
 }

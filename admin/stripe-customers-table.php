@@ -45,7 +45,7 @@ class Customers_Table extends WP_List_Table {
 			    	return 'No';
 		    	}
 		    case 'details':
-		    	return '<a class="button-secondary" href="'.get_admin_url().'admin.php?page=dba_stripe_customer_detail&customer_id='.$item->id.'" title="Show Details">Show Details</a>';
+		    	return '<a class="button-secondary" href="'.get_admin_url().'admin.php?page=dba_stripe_customer_detail&customer='.$item->id.'" title="Show Details">Show Details</a>';
 		    case 'account':
 		    	return $item->id;
 		}
@@ -53,10 +53,11 @@ class Customers_Table extends WP_List_Table {
     
     function column_customer( $item ) {
 	    $actions = array(
+	    	'view' => sprintf('<a href="'.get_admin_url().'admin.php?page=dba_stripe_customer_detail&customer='.$item->id.'" title="View">View</a>'),
 	    	'edit' => sprintf('<a href="?page=%s&action=%s&customer=%s">Edit</a>','dba_stripe_edit_customer','edit',$item->id),
 	    	'delete' => sprintf('<a href="?page=%s&action=%s&customer=%s">Delete</a>',$_REQUEST['page'],'delete',$item->id),
 	    );
-	    return sprintf('%1$s %2$s', '<a href="'.get_admin_url().'admin.php?page=dba_stripe_customer_detail&customer_id='.$item->id.'" title="Show Details"><strong>'.$item->name.'</strong></a>', $this->row_actions($actions) );
+	    return sprintf('%1$s %2$s', '<a href="'.get_admin_url().'admin.php?page=dba_stripe_customer_detail&customer='.$item->id.'" title="Show Details"><strong>'.$item->name.'</strong></a>', $this->row_actions($actions) );
     }
 
 	function prepare_items() {
@@ -65,7 +66,8 @@ class Customers_Table extends WP_List_Table {
 		$hidden = array();
 		$sortable = array();
 		$this->_column_headers = array($columns, $hidden, $sortable);
-		$per_page = 25;
+		$per_page = 20;
+		
 		$current_page = $this->get_pagenum();
 		$total_items = get_customer_count();
 		$data = get_customers_by_page( $current_page, $per_page );

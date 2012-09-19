@@ -5,6 +5,7 @@ require_once( 'credit_card.php' );
 
 if( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && ( $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' ) ) {
 
+	$id = $_GET['id'];
 	$name = $_GET['name'];
 	$email = $_GET['email'];
 	$card_number = $_GET['card_number'];
@@ -17,12 +18,16 @@ if( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && ( $_SERVER['HTTP_X_REQUESTED_W
 			echo '<strong>ERROR: Both a name and email must be provided.</strong>';	
 		}else{	
 			if( !empty( $card_number ) ){
-				$cust = create_customer( $name, $email, new CreditCard( $card_number, $code, $exp_month, $exp_year ) );
+				$cust = update_customer( $id, $name, $email, new CreditCard( $card_number, $code, $exp_month, $exp_year ) );
 			}else{
-				$cust = create_customer( $name, $email, null );
+				$cust = update_customer( $id, $name, $email );
 			}
 			if( $cust ){
-				echo '<strong>SUCCESS: Customer '.$name.' created successfully.</strong>';
+				if( !empty($cust->active_card->cvc_check) && ($cust->active_card->cvc_check != 'fail' ) ){
+					echo '<strong>SUCCESS: Customer '.$name.' updated successfully.</strong>num:'.$cust->active_card->last4.'type:'.$cust->active_card->type;
+				}else{
+					echo '<strong>ERROR: CVC code is not valid.</strong>';	
+				}
 			}
 		}	
 	}catch( Stripe_InvalidRequestError $exception ){
